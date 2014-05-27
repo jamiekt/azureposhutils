@@ -1,5 +1,6 @@
 function Invoke-HiveStatement ([string]$query, [hashtable]$defines, [bool]$printDebugInfo=0)
 {
+    #Invoke-Hive on its own doesn't produce much meaningful info. Here we wrap Invoke-Hive and provide execution time
     if ($printDebugInfo) {
         $defines;
         $query; 
