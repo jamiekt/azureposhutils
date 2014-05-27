@@ -1,15 +1,18 @@
-function Invoke-HiveStatement ([string]$query)
+function Invoke-HiveStatement ([string]$query, [hashtable]$defines, [bool]$printDebugInfo=0)
 {
-    $query; 
+    if ($printDebugInfo) {
+        $defines;
+        $query; 
+    }
     $startTime=get-date; 
     $startTime; 
-    Invoke-Hive -Defines @{} -Query $query; 
+    Invoke-Hive -Defines $defines -Query $query; 
     ((get-date).Subtract($startTime)).TotalSeconds.ToString() + "seconds" 
 }
-function Invoke-HiveScript ([string]$scriptPath)
+function Invoke-HiveScript ([string]$scriptPath, [hashtable]$defines, [bool]$printDebugInfo=0)
 {
     $query = Get-Content $scriptPath -raw;
-    Invoke-HiveStatement $query
+    Invoke-HiveStatement $query $defines $printDebugInfo
 }
 function SetSubscription ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [bool]$printDebugInfo=0)
 {
