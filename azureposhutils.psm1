@@ -65,6 +65,8 @@ function CreateStorageAccountIfNotExists ([System.Security.Cryptography.X509Cert
 }
 
 function CreateStorageContainerIfNotExists ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [string]$storageAccountName , [string]$containerName, [bool]$printDebugInfo=0) {
+    # Example usage
+    #CreateStorageContainerIfNotExists -cert (Get-Item Cert:\CurrentUser\My\<thumbprint>) -subscriptionName <sub-name> -subscriptionid <sub-id> -storageAccountName <account-name> -containerName <container-name>
     if ($printDebugInfo) {
         "subscriptionName = $subscriptionName"
         "subscriptionId = $subscriptionId"
@@ -80,7 +82,7 @@ function CreateStorageContainerIfNotExists ([System.Security.Cryptography.X509Ce
     
     if (  (Get-AzureStorageContainer -Context $azureStorageContext | where {$_.Name -eq $ContainerName}) -eq $null)
     {
-        New-AzureStorageContainer $ContainerName -Permission Container -Context $azureStorageContext
+        New-AzureStorageContainer $ContainerName -Permission Off -Context $azureStorageContext
     }
     else
     {
