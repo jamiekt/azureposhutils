@@ -124,7 +124,7 @@ function UploadBlobs ([System.Security.Cryptography.X509Certificates.X509Certifi
     }
 }
 
-function CreateHDInsightClusterIfNotExists ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [string]$storageAccountName , [string]$containerName, [string]$clusterName, [string]$location, [int]$clusterNodes, [string]$hdinsightVersion, [bool]$printDebugInfo=0) {
+function CreateHDInsightClusterIfNotExists ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [string]$storageAccountName , [string]$containerName, [string]$clusterName, [string]$location, [int]$clusterNodes, [string]$hdinsightVersion, [bool]$printDebugInfo=0, [string]$clusterType) {
     if ($printDebugInfo) {
         "subscriptionName = $subscriptionName"
         "subscriptionId = $subscriptionId"
@@ -133,9 +133,12 @@ function CreateHDInsightClusterIfNotExists ([System.Security.Cryptography.X509Ce
         "clusterName = $clusterName"
         "location = $location"
         "clusterNodes = $clusterNodes"
+        "clusterType = $clusterType"
         "hdinsightVersion=$hdinsightVersion"
     }
     SetSubscription $cert $subscriptionName $subscriptionId $printDebugInfo
+    
+    if ($clusterType -eq ""){$clusterType = "Unknown"}
     
     $azureStorageKey = (Get-AzureStorageKey $storageAccountName | %{ $_.Primary })
     if ($printDebugInfo) {"azureStorageKey=$azureStorageKey"}
@@ -144,7 +147,7 @@ function CreateHDInsightClusterIfNotExists ([System.Security.Cryptography.X509Ce
 
     if ((Get-AzureHDInsightCluster -Name $clusterName) -eq $null)
     {
-        New-AzureHDInsightCluster 	-Name $clusterName -Location $location -DefaultStorageAccountName "$storageAccountName.blob.core.windows.net" -DefaultStorageAccountKey $storageAccountKey -DefaultStorageContainerName $containerName -ClusterSizeInNodes $clusterNodes -Version $hdinsightVersion
+        New-AzureHDInsightCluster 	-Name $clusterName -Location $location -DefaultStorageAccountName "$storageAccountName.blob.core.windows.net" -DefaultStorageAccountKey $storageAccountKey -DefaultStorageContainerName $containerName -ClusterSizeInNodes $clusterNodes -Version $hdinsightVersion $hdinsightVersion -ClusterType
     }
     else
     {
