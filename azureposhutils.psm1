@@ -124,7 +124,7 @@ function UploadBlobs ([System.Security.Cryptography.X509Certificates.X509Certifi
     }
 }
 
-function CreateHDInsightClusterIfNotExists ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [string]$storageAccountName , [string]$containerName, [string]$clusterName, [string]$location, [int]$clusterNodes, [string]$hdinsightVersion, [bool]$printDebugInfo=0, [string]$clusterType) {
+function CreateHDInsightClusterIfNotExists ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [string]$storageAccountName , [string]$containerName, [string]$clusterName, [string]$location, [int]$clusterNodes, [string]$hdinsightVersion, [string]$clusterType, [bool]$printDebugInfo=0) {
     if ($printDebugInfo) {
         "subscriptionName = $subscriptionName"
         "subscriptionId = $subscriptionId"
