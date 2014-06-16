@@ -91,6 +91,10 @@ function CreateStorageContainerIfNotExists ([System.Security.Cryptography.X509Ce
 }
 
 function UploadBlobs ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [string]$storageAccountName , [string]$containerName, [string]$sourceFolder , [string]$targetFolder ,  [bool]$printDebugInfo=0){
+<#
+Example call
+UploadBlobs -cert $cert -subscriptionName $subscriptionName -subscriptionid $subscriptionid -storageAccountName $storageAccountName -containerName $containerName -sourceFolder "c:\scripts\lib" -targetFolder "folder1/folder2"
+#>
     if ($printDebugInfo) {
         "subscriptionName = $subscriptionName"
         "subscriptionId = $subscriptionId"
