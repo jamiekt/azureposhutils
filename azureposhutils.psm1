@@ -108,18 +108,25 @@ function UploadBlobs ([System.Security.Cryptography.X509Certificates.X509Certifi
 
     #useful article for uploading files http://blogs.msdn.com/b/shashankyerramilli/archive/2014/02/15/upload-files-to-blob-storage-using-azure-power-shell.aspx
     # $_.mode -match "-a---" scans the data directory and ony fetches the files. It filters out all directories
-    $files = Get-ChildItem $sourceFolder -force| Where-Object {$_.mode -match "-a---"}
+    $files = (Get-ChildItem $sourceFolder -force -recurse | Where-Object {$_.mode -match "-a---"}).FullName
  
     # iterate through all the files and start uploading data
     foreach ($file in $files)
     {
         #fq name represents fully qualified name
-        $fqName = $sourceFolder + "\" + $file.Name
+        $fqName = $file
         #upload the current file to the blob
         if ($printDebugInfo) {
             "Uploading $fqName"
         }
-        $fileName = $file.Name
+        if ($sourceFolder.LastIndexOf("\") -eq $sourceFolder.Length - 1)
+        {
+            $fileName = $file.Replace($sourceFolder,"")
+        }
+        else
+        {
+            $fileName = $file.Replace($sourceFolder + "\","")
+        }
         Set-AzureStorageBlobContent -Blob "$targetFolder/$fileName" -Container $ContainerName -File $fqName -Context $azureStorageContext -Force
     }
 }
