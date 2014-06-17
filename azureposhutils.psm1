@@ -92,8 +92,13 @@ function CreateStorageContainerIfNotExists ([System.Security.Cryptography.X509Ce
 
 function UploadBlobs ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [string]$storageAccountName , [string]$containerName, [string]$sourceFolder , [string]$targetFolder ,  [bool]$printDebugInfo=0){
 <#
-Example call
-UploadBlobs -cert $cert -subscriptionName $subscriptionName -subscriptionid $subscriptionid -storageAccountName $storageAccountName -containerName $containerName -sourceFolder "c:\scripts\lib" -targetFolder "folder1/folder2"
+    .SYNOPSIS 
+      Upload contents of a folder to Azure BLOB Storage, respecting relative locations
+    .EXAMPLE
+     UploadBlobs -cert $cert -subscriptionName $subscriptionName -subscriptionid $subscriptionid -storageAccountName $storageAccountName -containerName $containerName -sourceFolder "c:\scripts\lib" -targetFolder "folder1/folder2"
+     Upload files from "c:\scripts\lib" to "https://$storageAccountName.blob.core.windows.net/$containerName", prepending each BLOB name with "folder1/folder2" Any subfolders of "c:\scripts\lib" will also be preprended onto the BLOB name, thus giving the illusion of folders.
+     .DESCRIPTION
+     The UploadBlobs function uploads the contents of a defined folder to a container in Azure BLOB Storage. it will preserve subfolder locations by prepending those relative locations as part of the BLOB name, thus giving the illusion of a hierarchical file system.
 #>
     if ($printDebugInfo) {
         "subscriptionName = $subscriptionName"
@@ -134,6 +139,7 @@ UploadBlobs -cert $cert -subscriptionName $subscriptionName -subscriptionid $sub
         Set-AzureStorageBlobContent -Blob "$targetFolder/$fileName" -Container $ContainerName -File $fqName -Context $azureStorageContext -Force
     }
 }
+
 
 function CreateHDInsightClusterIfNotExists ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [string]$storageAccountName , [string]$containerName, [string]$clusterName, [string]$location, [int]$clusterNodes, [string]$hdinsightVersion, [string]$clusterType, [bool]$printDebugInfo=0) {
     if ($printDebugInfo) {
