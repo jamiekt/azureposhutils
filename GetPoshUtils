@@ -14,7 +14,9 @@ function Install-PoshUtils {
     $client = (New-Object Net.WebClient)
     $client.Proxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials
     $client.DownloadFile($src, $Destination + "\AzurePoshUtils\azureposhutils.psm1")
-
+    
+    "Destination=$Destination"
+    
     $executionPolicy  = (Get-ExecutionPolicy)
     $executionRestricted = ($executionPolicy -eq "Restricted")
     if ($executionRestricted){
