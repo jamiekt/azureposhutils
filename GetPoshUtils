@@ -8,6 +8,7 @@ function Install-PoshUtils {
         $Destination = $ModulePaths | Select-Object -Index 0
     }
     
+    "Here"
     "Destination=$Destination"
         
     New-Item ($Destination + "\AzurePoshUtils\") -ItemType Directory -Force | out-null
