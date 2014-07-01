@@ -7,6 +7,8 @@ function Install-PoshUtils {
     if (-not $Destination) {
         $Destination = $ModulePaths | Select-Object -Index 0
     }
+    
+    "Destination=$Destination"
         
     New-Item ($Destination + "\AzurePoshUtils\") -ItemType Directory -Force | out-null
     $src = "https://raw.githubusercontent.com/jamiekt/azureposhutils/master/azureposhutils.psm1"
@@ -15,7 +17,6 @@ function Install-PoshUtils {
     $client.Proxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials
     $client.DownloadFile($src, $Destination + "\AzurePoshUtils\azureposhutils.psm1")
     
-    "Destination=$Destination"
     
     $executionPolicy  = (Get-ExecutionPolicy)
     $executionRestricted = ($executionPolicy -eq "Restricted")
