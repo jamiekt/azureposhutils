@@ -8,8 +8,7 @@ function Install-PoshUtils {
         $Destination = $ModulePaths | Select-Object -Index 1
     }
     
-    "Here"
-    "Destination=$Destination"
+    Write-host "AzurePoshutils will be installed into $Destination. You may need to Run As Administrator in order for this to work." -ForeGround Green
         
     New-Item ($Destination + "\AzurePoshUtils\") -ItemType Directory -Force | out-null
     $src = "https://raw.githubusercontent.com/jamiekt/azureposhutils/master/azureposhutils.psm1"
