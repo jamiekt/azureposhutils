@@ -5,7 +5,7 @@ function Install-PoshUtils {
     $ExpectedUserModulePath = Join-Path -Path ([Environment]::GetFolderPath('MyDocuments')) -ChildPath WindowsPowerShell\Modules
     $Destination = $ModulePaths | Where-Object { $_ -eq $ExpectedUserModulePath}
     if (-not $Destination) {
-        $Destination = $ModulePaths | Select-Object -Index 0
+        $Destination = $ModulePaths | Select-Object -Index 1
     }
     
     "Here"
