@@ -15,7 +15,7 @@ function Invoke-HiveScript ([string]$scriptPath, [hashtable]$defines, [bool]$pri
     $query = Get-Content $scriptPath -raw;
     Invoke-HiveStatement $query $defines $printDebugInfo
 }
-function SetSubscription ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [bool]$printDebugInfo=0)
+function Set-Subscription ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [bool]$printDebugInfo=0)
 {
     if ($printDebugInfo) {
         "subscriptionName = $subscriptionName"
@@ -25,30 +25,36 @@ function SetSubscription ([System.Security.Cryptography.X509Certificates.X509Cer
     Select-AzureSubscription -Current $subscriptionName
 }
 
-function CheckVariablesAreDefined([string]$variableList) {
-    $variables = $variableList.Split(',')
-    foreach ($variable in $variables)
-    {
-        if (Test-Path variable:global:$variable)
+function Confirm-VariableIsDefined([string]$variablename)
+{
+	if (Test-Path variable:global:$variableName)
         {
-            "$variable=" + (Get-Variable $variable).Value
+            "$variable=" + (Get-Variable $variableName).Value
         }
         else
         {
-            throw [System.Exception] "Variable $variable is not defined"
-            Get-Member "$variable"
+            throw [System.Exception] "Variable $variableName is not defined"
+            Get-Member "$variableName"
         }
+}
+
+function Confirm-VariablesAreDefined([string[]]$variablenameArray) {
+    foreach ($variableName in $variablenameArray)
+    {
+        Confirm-VariableIsDefined -variableName $variableName
     }
 }
 
-function CreateStorageAccountIfNotExists ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [string]$storageAccountName , [string]$location , [bool]$printDebugInfo=0) {
+
+function New-AzureStorageAccountIfNotExists ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [string]$storageAccountName , [string]$location , [bool]$printDebugInfo=0) {
     if ($printDebugInfo) {
         "subscriptionName = $subscriptionName"
         "subscriptionId = $subscriptionId"
         "storageAccountName = $storageAccountName"
         "location = $location"
     }
-    SetSubscription $cert $subscriptionName $subscriptionId $printDebugInfo
+    Set-Subscription $cert $subscriptionName $subscriptionId $printDebugInfo
+
 
     $azureStorageKey = (Get-AzureStorageKey $storageAccountName | %{ $_.Primary })
     if ($printDebugInfo) {"azureStorageKey=$azureStorageKey"}
@@ -62,9 +68,11 @@ function CreateStorageAccountIfNotExists ([System.Security.Cryptography.X509Cert
         "Storage account $StorageAccountName already exists";
     }
 
+
 }
 
-function CreateStorageContainerIfNotExists ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [string]$storageAccountName , [string]$containerName, [bool]$printDebugInfo=0) {
+
+function New-AzureStorageContainerIfNotExists ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [string]$storageAccountName , [string]$containerName, [bool]$printDebugInfo=0) {
     # Example usage
     #CreateStorageContainerIfNotExists -cert (Get-Item Cert:\CurrentUser\My\<thumbprint>) -subscriptionName <sub-name> -subscriptionid <sub-id> -storageAccountName <account-name> -containerName <container-name>
     if ($printDebugInfo) {
@@ -73,7 +81,7 @@ function CreateStorageContainerIfNotExists ([System.Security.Cryptography.X509Ce
         "storageAccountName = $storageAccountName"
         "containerName = $containerName"
     }
-    SetSubscription $cert $subscriptionName $subscriptionId $printDebugInfo
+    Set-Subscription $cert $subscriptionName $subscriptionId $printDebugInfo
     
     $azureStorageKey = (Get-AzureStorageKey $storageAccountName | %{ $_.Primary })
     if ($printDebugInfo) {"azureStorageKey=$azureStorageKey"}
@@ -90,15 +98,16 @@ function CreateStorageContainerIfNotExists ([System.Security.Cryptography.X509Ce
     }         
 }
 
-function UploadBlobs ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [string]$storageAccountName , [string]$containerName, [string]$sourceFolder , [string]$targetFolder ,  [bool]$printDebugInfo=0){
+
+function Set-AzureStorageBlobs ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [string]$storageAccountName , [string]$containerName, [string]$sourceFolder , [string]$targetFolder ,  [bool]$printDebugInfo=0){
 <#
     .SYNOPSIS 
       Upload contents of a folder to Azure BLOB Storage, respecting relative locations
     .EXAMPLE
-     UploadBlobs -cert $cert -subscriptionName $subscriptionName -subscriptionid $subscriptionid -storageAccountName $storageAccountName -containerName $containerName -sourceFolder "c:\scripts\lib" -targetFolder "folder1/folder2"
+     Set-AzureStorageBlobs -cert $cert -subscriptionName $subscriptionName -subscriptionid $subscriptionid -storageAccountName $storageAccountName -containerName $containerName -sourceFolder "c:\scripts\lib" -targetFolder "folder1/folder2"
      Upload files from "c:\scripts\lib" to "https://$storageAccountName.blob.core.windows.net/$containerName", prepending each BLOB name with "folder1/folder2" Any subfolders of "c:\scripts\lib" will also be preprended onto the BLOB name, thus giving the illusion of folders.
      .DESCRIPTION
-     The UploadBlobs function uploads the contents of a defined folder to a container in Azure BLOB Storage. it will preserve subfolder locations by prepending those relative locations as part of the BLOB name, thus giving the illusion of a hierarchical file system.
+     The Set-AzureStorageBlobs function uploads the contents of a defined folder to a container in Azure BLOB Storage. it will preserve subfolder locations by prepending those relative locations as part of the BLOB name, thus giving the illusion of a hierarchical file system.
 #>
     if ($printDebugInfo) {
         "subscriptionName = $subscriptionName"
@@ -108,12 +117,13 @@ function UploadBlobs ([System.Security.Cryptography.X509Certificates.X509Certifi
         "sourceFolder = $sourceFolder"
         "targetFolder = $targetFolder"
     }
-    SetSubscription $cert $subscriptionName $subscriptionId $printDebugInfo
+    Set-Subscription $cert $subscriptionName $subscriptionId $printDebugInfo
     
     $azureStorageKey = (Get-AzureStorageKey $storageAccountName | %{ $_.Primary })
     if ($printDebugInfo) {"azureStorageKey=$azureStorageKey"}
     $azureStorageContext = (New-AzureStorageContext $storageAccountName -StorageAccountKey $azureStorageKey )
     if ($printDebugInfo) {"azureStorageContext=$azureStorageContext"}
+
 
     #useful article for uploading files http://blogs.msdn.com/b/shashankyerramilli/archive/2014/02/15/upload-files-to-blob-storage-using-azure-power-shell.aspx
     # $_.mode -match "-a---" scans the data directory and ony fetches the files. It filters out all directories
@@ -141,7 +151,9 @@ function UploadBlobs ([System.Security.Cryptography.X509Certificates.X509Certifi
 }
 
 
-function CreateHDInsightClusterIfNotExists ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [string]$storageAccountName , [string]$containerName, [string]$clusterName, [string]$location, [int]$clusterNodes, [string]$hdinsightVersion, [string]$clusterType, [bool]$printDebugInfo=0) {
+
+
+function New-HDInsightClusterIfNotExists ([System.Security.Cryptography.X509Certificates.X509Certificate]$cert , [string]$subscriptionName , [string]$subscriptionid , [string]$storageAccountName , [string]$containerName, [string]$clusterName, [string]$location, [int]$clusterNodes, [string]$hdinsightVersion, [string]$clusterType, [bool]$printDebugInfo=0) {
     if ($printDebugInfo) {
         "subscriptionName = $subscriptionName"
         "subscriptionId = $subscriptionId"
@@ -153,7 +165,7 @@ function CreateHDInsightClusterIfNotExists ([System.Security.Cryptography.X509Ce
         "clusterType = $clusterType"
         "hdinsightVersion=$hdinsightVersion"
     }
-    SetSubscription $cert $subscriptionName $subscriptionId $printDebugInfo
+    Set-Subscription $cert $subscriptionName $subscriptionId $printDebugInfo
     
     if ($clusterType -eq ""){$clusterType = "Unknown"}
     
@@ -161,6 +173,7 @@ function CreateHDInsightClusterIfNotExists ([System.Security.Cryptography.X509Ce
     if ($printDebugInfo) {"azureStorageKey=$azureStorageKey"}
     $azureStorageContext = (New-AzureStorageContext $storageAccountName -StorageAccountKey $azureStorageKey )
     if ($printDebugInfo) {"azureStorageContext=$azureStorageContext"}
+
 
     if ((Get-AzureHDInsightCluster -Name $clusterName) -eq $null)
     {
@@ -171,4 +184,3 @@ function CreateHDInsightClusterIfNotExists ([System.Security.Cryptography.X509Ce
         "Cluster $clusterName already exists!!"
     }
 }
-
