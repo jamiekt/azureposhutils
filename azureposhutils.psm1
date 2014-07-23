@@ -29,7 +29,7 @@ function Confirm-VariableIsDefined([string]$variablename)
 {
 	if (Test-Path variable:global:$variableName)
         {
-            "$variable=" + (Get-Variable $variableName).Value
+            "$variableName=" + (Get-Variable $variableName).Value
         }
         else
         {
